@@ -1,0 +1,41 @@
+services:
+  - type: web
+    name: veritas-studio-api
+    runtime: python
+    rootDir: backend
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.7"
+      - key: ENV
+        value: production
+      - key: B2_KEY_ID
+        sync: false
+      - key: B2_APP_KEY
+        sync: false
+      - key: B2_BUCKET
+        sync: false
+      - key: B2_REGION
+        value: us-west-004
+      - key: GMI_API_KEY
+        sync: false
+      # Admin auth. ADMIN_PASSWORD_HASH is a salted scrypt hash — generate locally
+      # with `python -m app.hashpw` and paste it in the Render dashboard (no
+      # plaintext password is ever stored). ADMIN_TOKEN is a random bearer secret.
+      # The app refuses to boot in production if either is missing.
+      - key: ADMIN_PASSWORD_HASH
+        sync: false
+      - key: ADMIN_TOKEN
+        generateValue: true
+      # Must be the exact deployed frontend origins (no '*').
+      - key: CORS_ORIGINS
+        sync: false
+      # Cost / abuse controls.
+      - key: MAX_CONCURRENT_JOBS
+        value: "3"
+      - key: DAILY_COST_CAP_USD
+        value: "25"
+      - key: TRUSTED_PROXY_HOPS
+        value: "1"

@@ -1,0 +1,49 @@
+node_modules/
+.turbo/
+.venv/
+venv/
+__pycache__/
+*.pyc
+.env
+.env.local
+.next/
+dist/
+build/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+*.sqlite-journal
+*.db
+.DS_Store
+output/
+.vercel
+*.tsbuildinfo
+# compiled vite config byproducts of `tsc -b`
+**/vite.config.js
+**/vite.config.d.ts
+coverage/
+
+# local production-readiness scripts (not part of the shipped app)
+/test.js
+**/test-prod.js
+**/test-prod.py
+
+# transient logs
+*.log
+
+# playwright / screenshots
+.playwright-mcp/
+*.png
+
+# private / internal — not for the public repo
+# CLAUDE.md: personally curated project constitution + ADK
+CLAUDE.md
+# AGENT_DEV_KIT.md: standalone copy of the Agent Development Kit
+AGENT_DEV_KIT.md
+# .claude/: agent config (skills/hooks/subagents/plugins/commands)
+.claude/
+# docs/: keep DEPLOY.md public (README links to it); hide the internal prep
+# (submission writeup, demo script). Ignore contents, not the dir, so the
+# negation below can re-include one file.
+docs/*
+!docs/DEPLOY.md

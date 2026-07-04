@@ -1,0 +1,9 @@
+packages:
+  - apps/*
+  - packages/*
+
+# Packages allowed to run install scripts. esbuild (used by Vite) sets up its
+# native binary; puppeteer downloads its matching Chromium for test-prod.js.
+allowBuilds:
+  esbuild: true
+  puppeteer: true

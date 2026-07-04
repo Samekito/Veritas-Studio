@@ -1,0 +1,3 @@
+# Dev-only deps (unit tests). These tests hit NO external APIs and cost nothing.
+-r requirements.txt
+pytest>=8.0
