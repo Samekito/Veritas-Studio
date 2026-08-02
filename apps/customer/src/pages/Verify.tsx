@@ -31,7 +31,7 @@ export default function Verify() {
       <h1 className="text-3xl tracking-[-0.5px]">Verify provenance</h1>
       <p className="muted">
         Drop any media file. If it carries a Genblaze Content Passport, we’ll extract it and
-        cryptographically verify it — no account, no trust required.
+        cryptographically verify it, no account, no trust required.
       </p>
 
       <div
@@ -74,7 +74,7 @@ export default function Verify() {
       </div>
 
       {result && (
-        <div className="card mt-[22px]">
+        <div className="card mt-5.5">
           {result.found && result.verified ? (
             <span className="tag good px-3.5 py-2 text-[15px]">
               ✓ Authentic — manifest verified
@@ -95,7 +95,7 @@ export default function Verify() {
             </div>
           )}
           {result.manifest && (
-            <pre className="mono mt-3.5 max-h-[360px] overflow-auto">
+            <pre className="mono mt-3.5 max-h-90 overflow-auto">
               {JSON.stringify(result.manifest, null, 2)}
             </pre>
           )}

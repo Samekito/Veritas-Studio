@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { ChevronsUpDown } from "lucide-react";
 import { Job } from "@veritas/shared";
 import AssetView from "./AssetView";
 import { useGenerate, useHealth, useJob } from "../services/jobsService";
@@ -85,13 +86,30 @@ export default function Home() {
           </div>
           <div className="field">
             <label>Tone</label>
-            <select value={form.tone} onChange={(e) => setForm({ ...form, tone: e.target.value })}>
-              {TONES.map((t) => (
-                <option key={t} value={t}>
-                  {t[0].toUpperCase() + t.slice(1)}
-                </option>
-              ))}
-            </select>
+            <div style={{ position: "relative" }}>
+              <select
+                value={form.tone}
+                onChange={(e) => setForm({ ...form, tone: e.target.value })}
+                style={{ paddingRight: "2.25rem" }}
+              >
+                {TONES.map((t) => (
+                  <option key={t} value={t}>
+                    {t[0].toUpperCase() + t.slice(1)}
+                  </option>
+                ))}
+              </select>
+              <ChevronsUpDown
+                size={15}
+                style={{
+                  position: "absolute",
+                  right: "0.75rem",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  pointerEvents: "none",
+                  opacity: 0.45,
+                }}
+              />
+            </div>
           </div>
           <div className="field">
             <label>Key message (optional)</label>
@@ -126,7 +144,7 @@ export default function Home() {
           {!job && (
             <div className="muted">
               <div className="section-title mt-0">How it works</div>
-              <ol className="list-decimal pl-[18px] leading-[1.9]">
+              <ol className="list-decimal pl-4.5 leading-[1.9]">
                 <li>Your brief is expanded into image, motion &amp; voiceover prompts.</li>
                 <li>Genblaze runs a chained, multi-model pipeline with automatic fallback.</li>
                 <li>Each asset + a tamper-evident manifest is written to Backblaze B2.</li>
@@ -158,7 +176,7 @@ export default function Home() {
               {job.status === "failed" && <div className="banner bad mt-4">{job.error}</div>}
 
               {job.status === "completed" && (
-                <div className="mt-[18px]">
+                <div className="mt-4.5">
                   <AssetView job={job} />
                   <Link className="btn small mt-3.5" to={`/passport/${job.id}`}>
                     View Content Passport →

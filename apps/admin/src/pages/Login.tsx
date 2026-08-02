@@ -22,7 +22,7 @@ export default function Login() {
 
   return (
     <div className="grid min-h-screen place-items-center p-6">
-      <form className="card w-[380px] max-w-full" onSubmit={submit}>
+      <form className="card w-95 max-w-full" onSubmit={submit}>
         <div className="row mb-2 gap-2.5">
           <span className="dot" />
           <b className="text-lg">Veritas Admin</b>

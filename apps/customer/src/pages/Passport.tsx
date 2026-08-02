@@ -29,10 +29,10 @@ export default function Passport() {
 
   return (
     <div className="container">
-      <Link to="/library" className="muted small">
-        ← Library
+      <Link to="/library" className="muted small hover:text-gray-400">
+        Go back to Library
       </Link>
-      <div className="spread mb-1 mt-[10px]">
+      <div className="spread mb-1 mt-2.5">
         <h1 className="m-0 text-[28px] tracking-[-0.5px]">{job.title}</h1>
         {job.verified ? (
           <span className="tag good px-3.5 py-2 text-sm">✓ Provenance Verified</span>
@@ -44,7 +44,7 @@ export default function Passport() {
         Content Passport · cryptographic record of how this media was made.
       </p>
 
-      <div className="grid two mt-[22px]">
+      <div className="grid two mt-5.5">
         <div className="card">
           <AssetView job={job} />
           <div className="row mt-4">
@@ -146,7 +146,7 @@ export default function Passport() {
             </button>
           </div>
           {showJson && (
-            <pre className="card mono max-h-[420px] overflow-auto">
+            <pre className="card mono max-h-105 overflow-auto">
               {JSON.stringify(job.manifest, null, 2)}
             </pre>
           )}

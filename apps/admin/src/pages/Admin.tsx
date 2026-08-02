@@ -110,7 +110,7 @@ export default function Admin() {
         )}
 
         {/* Metrics */}
-        <div className="stat-grid my-[18px]">
+        <div className="stat-grid my-4.5">
           <Stat n={s?.runs} l="Runs" />
           <Stat n={s?.running} l="In progress" accent="text-warn" />
           <Stat n={s?.completed} l="Completed" accent="text-good" />
@@ -128,7 +128,7 @@ export default function Admin() {
               {ov.recent_errors.map((e, i) => (
                 <div key={i} className="err-row">
                   <span className="tag bad shrink-0">error</span>
-                  <span className="small min-w-[160px] text-ink">{e.title || e.id}</span>
+                  <span className="small min-w-40 text-ink">{e.title || e.id}</span>
                   <span className="mono small text-muted">{e.error}</span>
                 </div>
               ))}
@@ -268,7 +268,7 @@ function JobStatus({ job }: { job: Job }) {
   if (job.status === "completed") return <span className="tag good">Completed</span>;
   return (
     <span className="tag muted">
-      <span className="spinner h-[11px] w-[11px]" /> {job.stage}
+      <span className="spinner h-2.75 w-2.75" /> {job.stage}
     </span>
   );
 }
