@@ -6,6 +6,7 @@ gracefully if a particular handler isn't available in the installed version.
 """
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from typing import Any
 
@@ -47,7 +48,11 @@ def handler_for(filename: str) -> Any | None:
 
 
 def manifest_from_json(manifest_json: str) -> Any:
-    return parse_manifest(manifest_json)
+    """Rebuild a Manifest from the JSON text we persist in the jobs table.
+
+    parse_manifest takes the decoded dict, not the raw JSON string.
+    """
+    return parse_manifest(json.loads(manifest_json))
 
 
 def embed_manifest(path: Path, manifest: Any, output: Path) -> Path:

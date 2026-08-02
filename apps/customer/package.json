@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@tanstack/react-query": "^5.56.2",
-    "@veritas/shared": "workspace:*"
+    "@veritas/shared": "workspace:*",
+    "lucide-react": "^1.28.0"
   }
 }

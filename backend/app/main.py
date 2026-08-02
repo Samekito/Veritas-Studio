@@ -25,6 +25,7 @@ from .jobs import BoundedJobRunner
 from .logging_setup import correlation_id, get_logger, setup_logging
 from .pipelines import run_generation
 from .ratelimit import SlidingWindowRateLimiter, client_ip_from_request
+from .storage import signed_url
 
 log = get_logger("veritas.api")
 
@@ -256,8 +257,12 @@ def download_verifiable(job_id: str):
     src = tmpdir / f"asset{suffix}"
     out = tmpdir / f"verified_{job_id}{suffix}"
 
+    # Presign for the same reason the read paths do — a private bucket 401s the
+    # durable URL. Host is asserted above on the durable URL; presigning keeps it.
+    source_url = signed_url(asset["url"]) or asset["url"]
+
     try:
-        with httpx.stream("GET", asset["url"], timeout=120, follow_redirects=False) as r:
+        with httpx.stream("GET", source_url, timeout=120, follow_redirects=False) as r:
             r.raise_for_status()
             with src.open("wb") as f:
                 for chunk in r.iter_bytes():
@@ -368,7 +373,9 @@ def _serialize_job(job: dict[str, Any]) -> dict[str, Any]:
         "cost_usd": job.get("cost_usd") or 0,
         "created_at": job.get("created_at"),
         "updated_at": job.get("updated_at"),
-        "assets": job.get("assets", []),
+        # Presigned at the boundary — the durable URL stored in the DB/manifest
+        # is 401 against a private bucket, so browsers can't render it directly.
+        "assets": [{**a, "url": signed_url(a.get("url"))} for a in job.get("assets", [])],
     }
     for key in ("brief", "plan", "steps"):
         if job.get(key):

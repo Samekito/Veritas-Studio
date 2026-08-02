@@ -28,6 +28,40 @@ _TONE_MOTION = {
 }
 
 
+# Voiceover length budget. Calibrated against this pipeline's own MiniMax TTS
+# output: 158 chars -> 9.89s and 119 chars -> 8.19s. Two samples can't separate a
+# per-character speaking rate (~14.5-16 chars/s) from fixed lead-in/out silence
+# (a linear fit suggests ~3s + 22.9 chars/s), so the budget is deliberately
+# conservative — it lands a 5s script at roughly 4.1-5.6s under either reading,
+# a range the player's rate-matching absorbs without sounding rushed.
+_CHARS_PER_SECOND = 12.0
+_MIN_VOICEOVER_CHARS = 30
+DEFAULT_CLIP_SECONDS = 5.0
+
+
+def _clamp_to_budget(text: str, budget: int) -> str:
+    """Trim an over-long lead line at a word boundary rather than mid-word."""
+    if len(text) <= budget:
+        return text
+    room = budget - 1  # the trailing period has to fit inside the budget too
+    head = text[:room].rsplit(" ", 1)[0].rstrip(" ,;:-")
+    return f"{head or text[:room]}."
+
+
+def _fit_voiceover(lead: str, audience_line: str, cta: str, clip_seconds: float) -> str:
+    """Longest version of the script that still fits the clip.
+
+    Drops the audience line first, then the CTA — the lead always survives, since
+    a spot with no hook is worse than a short one.
+    """
+    budget = max(_MIN_VOICEOVER_CHARS, int(clip_seconds * _CHARS_PER_SECOND))
+    for candidate in ([lead, audience_line, cta], [lead, cta], [lead]):
+        line = " ".join(part for part in candidate if part).strip()
+        if len(line) <= budget:
+            return line
+    return _clamp_to_budget(lead, budget)
+
+
 @dataclass
 class Plan:
     title: str
@@ -40,7 +74,7 @@ class Plan:
         return asdict(self)
 
 
-def heuristic_plan(brief: dict[str, Any]) -> Plan:
+def heuristic_plan(brief: dict[str, Any], clip_seconds: float = DEFAULT_CLIP_SECONDS) -> Plan:
     subject = (brief.get("subject") or "the product").strip()
     audience = (brief.get("audience") or "everyone").strip()
     tone = (brief.get("tone") or "cinematic").strip().lower()
@@ -60,10 +94,10 @@ def heuristic_plan(brief: dict[str, Any]) -> Plan:
         f"high production value"
     )
 
-    hook = key_message or f"Meet {subject}."
-    voiceover = (
-        f"{hook} Designed for {audience}, it delivers exactly what you need. {cta}"
-    ).strip()
+    # Sized to the clip, not to the page. A script that outruns the video has to
+    # be sped up to fit, which makes the read sound rushed.
+    lead = f"{(key_message or f'Meet {subject}').rstrip(' .')}."
+    voiceover = _fit_voiceover(lead, f"Made for {audience}.", cta, clip_seconds)
 
     title = brief.get("title") or f"{subject.title()} — {tone.title()} Spot"
 
@@ -76,6 +110,10 @@ def heuristic_plan(brief: dict[str, Any]) -> Plan:
     )
 
 
-def make_plan(brief: dict[str, Any]) -> Plan:
-    """Entry point for turning a brief into a concrete generation plan."""
-    return heuristic_plan(brief)
+def make_plan(brief: dict[str, Any], clip_seconds: float = DEFAULT_CLIP_SECONDS) -> Plan:
+    """Entry point for turning a brief into a concrete generation plan.
+
+    `clip_seconds` is the configured video length; it bounds the voiceover so the
+    two tracks come out roughly the same duration.
+    """
+    return heuristic_plan(brief, clip_seconds)

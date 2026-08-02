@@ -50,7 +50,7 @@ class Settings:
     b2_key_id: str | None = os.getenv("B2_KEY_ID")
     b2_app_key: str | None = os.getenv("B2_APP_KEY")
     b2_bucket: str | None = os.getenv("B2_BUCKET")
-    b2_region: str = os.getenv("B2_REGION", "us-west-004")
+    b2_region: str = os.getenv("B2_REGION", "us-east-005")
     b2_public_url_base: str | None = os.getenv("B2_PUBLIC_URL_BASE") or None
 
     # Providers

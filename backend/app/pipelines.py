@@ -250,7 +250,7 @@ def run_generation(job_id: str, brief: dict[str, Any]) -> None:
     """Blocking: runs the full pipeline. Call from a background thread."""
     try:
         db.update_job(job_id, status="running", stage="Planning")
-        plan = make_plan(brief)
+        plan = make_plan(brief, clip_seconds=settings.video_duration)
         db.update_job(job_id, title=plan.title, plan=json.dumps(plan.to_dict()))
 
         parent_run_id = brief.get("parent_run_id")
