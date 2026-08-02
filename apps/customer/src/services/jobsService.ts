@@ -1,7 +1,14 @@
 // TanStack Query hooks for the customer app — thin wrappers over the shared api
 // client. Components consume these instead of fetching in effects.
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { api } from "@veritas/shared";
+
+const LIBRARY_PAGE_SIZE = 24;
 
 export function useHealth() {
   return useQuery({ queryKey: ["health"], queryFn: api.health });
@@ -11,8 +18,15 @@ export function useStats() {
   return useQuery({ queryKey: ["stats"], queryFn: api.stats });
 }
 
+// Paged: older runs (including the earliest verified ones) sit past the first
+// page once a few failed runs pile up, so the list must be able to reach them.
 export function useLibrary() {
-  return useQuery({ queryKey: ["library"], queryFn: () => api.library().then((r) => r.jobs) });
+  return useInfiniteQuery({
+    queryKey: ["library"],
+    queryFn: ({ pageParam }) => api.library(LIBRARY_PAGE_SIZE, pageParam),
+    initialPageParam: 0,
+    getNextPageParam: (last) => last.next_offset ?? undefined,
+  });
 }
 
 export function usePassport(id: string | undefined) {

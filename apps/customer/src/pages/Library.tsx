@@ -2,8 +2,16 @@ import { Link } from "react-router-dom";
 import { useLibrary, useStats } from "../services/jobsService";
 
 export default function Library() {
-  const { data: jobs = [], isLoading: loading } = useLibrary();
+  const {
+    data,
+    isLoading: loading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useLibrary();
   const { data: stats } = useStats();
+  const jobs = data?.pages.flatMap((page) => page.jobs) ?? [];
+  const totalCount = data?.pages[0]?.total_count ?? 0;
 
   return (
     <div className="container wide">
@@ -11,7 +19,7 @@ export default function Library() {
       <p className="muted">Every run is stored on Backblaze B2 with its provenance manifest.</p>
 
       {stats && (
-        <div className="stat-grid mb-[30px] mt-[22px]">
+        <div className="stat-grid mb-7.5 mt-5.5">
           <div className="stat">
             <div className="n">{stats.runs}</div>
             <div className="l">Runs</div>
@@ -83,6 +91,21 @@ export default function Library() {
           );
         })}
       </div>
+
+      {hasNextPage && (
+        <div className="mt-6 grid place-items-center gap-2">
+          <button
+            className="btn"
+            onClick={() => fetchNextPage()}
+            disabled={isFetchingNextPage}
+          >
+            {isFetchingNextPage ? "Loading…" : "Load more"}
+          </button>
+          <span className="muted small">
+            Showing {jobs.length} of {totalCount}
+          </span>
+        </div>
+      )}
     </div>
   );
 }
