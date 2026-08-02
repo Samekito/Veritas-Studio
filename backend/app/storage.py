@@ -12,6 +12,14 @@ from genblaze_core import KeyStrategy, ObjectStorageSink
 from genblaze_s3 import S3StorageBackend
 
 from .config import settings
+from .logging_setup import get_logger
+
+log = get_logger("veritas.storage")
+
+# Lifetime of the browser-facing asset URLs minted by `signed_url`. Long enough
+# that a passport page left open still plays, short enough that a leaked URL
+# stops working.
+ASSET_URL_TTL = 3600
 
 
 @lru_cache(maxsize=1)
@@ -38,3 +46,28 @@ def make_sink() -> ObjectStorageSink:
         prefix=settings.key_prefix,
         key_strategy=KeyStrategy.CONTENT_ADDRESSABLE,
     )
+
+
+def signed_url(url: str | None) -> str | None:
+    """Mint a short-lived readable URL for a persisted asset URL.
+
+    What we store is the *durable* URL — credential-free and non-expiring, so it
+    stays valid in the manifest forever. A private B2 bucket answers that URL
+    with 401, which is why `<img>`/`<video>` tags render nothing. Presigning at
+    the API boundary keeps the bucket private while still letting the browser
+    read the bytes.
+
+    Never raises: a signing failure degrades to the durable URL (correct when
+    the bucket is public) rather than taking the whole response down.
+    """
+    if not url or not settings.b2_ready:
+        return url
+    try:
+        backend = get_backend()
+        key = backend.key_from_url(url)
+        if not key:  # foreign URL — not ours to sign
+            return url
+        return backend.presigned_get_url(key, expires_in=ASSET_URL_TTL)
+    except Exception:
+        log.warning("asset presign failed; serving durable URL", exc_info=True)
+        return url
