@@ -6,6 +6,19 @@
 
 Built for the [Backblaze Generative Media Hackathon](https://backblaze-generative-media.devpost.com/).
 
+## Live demo
+
+| | |
+|---|---|
+| **Customer app** | <https://veritas-studio-customer.vercel.app> |
+| **API** | <https://veritas-studio.onrender.com> |
+
+> The API runs on Render's free tier and sleeps when idle — the first request may take ~50s
+> to wake. Generation itself needs GMI Cloud credits; when the key is out, the pipeline
+> surfaces the provider's `402` in the Operations dashboard rather than failing silently.
+
+![Veritas Studio — the Create view: a one-line brief becomes a verifiable clip](docs/assets/hero.png)
+
 ---
 
 ## Why this exists
@@ -115,8 +128,8 @@ pnpm dev:web         # both web apps via `turbo run dev`
 pnpm build           # turbo run build  → customer + admin
 ```
 
-- **Customer app** (`customer/`, :5173) — Create / Library / Passport / Verify.
-- **Admin console** (`admin/`, :5174) — super-admin **login-gated** operations dashboard
+- **Customer app** (`apps/customer/`, :5173) — Create / Library / Passport / Verify.
+- **Admin console** (`apps/admin/`, :5174) — super-admin **login-gated** operations dashboard
   (dev: set `ADMIN_PASSWORD` in `backend/.env`; prod verifies against `ADMIN_PASSWORD_HASH`).
 - **Shared package** (`@veritas/shared`) — types, API client, and design system used by both.
 
@@ -130,9 +143,9 @@ venv at `backend/.venv` (see step 1).
 ## Deployment
 
 - **Customer & Admin** → Vercel/Netlify (two static projects). For each, set the root to
-  `customer/` or `admin/`, build with `npm run build` (Vite), and set `VITE_API_BASE` to your
+  `apps/customer/` or `apps/admin/`, build with `pnpm build` (Vite), and set `VITE_API_BASE` to your
   backend URL (admin also takes `VITE_CUSTOMER_URL`). SPA fallback configs included
-  (`customer/vercel.json`, `admin/vercel.json`).
+  (`apps/customer/vercel.json`, `apps/admin/vercel.json`).
 - **Backend** → Render/Railway/Fly. Start command:
   `uvicorn app.main:app --host 0.0.0.0 --port $PORT`. Set all `backend/.env` vars as
   environment variables (incl. `ENV=production`, `ADMIN_TOKEN`, `ADMIN_PASSWORD_HASH` from
@@ -143,12 +156,13 @@ See [docs/DEPLOY.md](docs/DEPLOY.md).
 ## Repo layout
 
 ```
-backend/    FastAPI + Genblaze pipeline + B2 + SQLite index + smoke_test.py
-customer/   Vite + React app — Create / Library / Passport / Verify   (:5173)
-admin/      Vite + React app — login-gated Operations dashboard        (:5174)
-shared/     @veritas/shared — types, API client, shared design system
+backend/          FastAPI + Genblaze pipeline + B2 + SQLite index + smoke_test.py
+apps/customer/    Vite + React — Create / Library / Passport / Verify      (:5173)
+apps/admin/       Vite + React — login-gated Operations dashboard          (:5174)
+packages/shared/  @veritas/shared — types, API client, shared design system
+render.yaml       Render blueprint for the backend service
 package.json / pnpm-workspace.yaml / turbo.json  — pnpm workspace + Turborepo root
-docs/       Submission writeup, demo script, deploy guide
+docs/             Submission writeup, demo script, deploy guide
 ```
 
 ## License

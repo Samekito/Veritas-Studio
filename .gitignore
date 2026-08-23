@@ -47,3 +47,6 @@ AGENT_DEV_KIT.md
 # negation below can re-include one file.
 docs/*
 !docs/DEPLOY.md
+# docs/assets/: images referenced by the README
+!docs/assets/
+!docs/assets/*.png
